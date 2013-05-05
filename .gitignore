@@ -1,0 +1,22 @@
+# .NET Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
+bin
+obj
+
+# MSTest test results
+TestResults
+
+# nuget package repository
+packages
+
+# user-specific files
+*.suo
+*.user
+
+# resharper files
+_[Rr]e[Ss]harper*
+*.[Dd]ot[Ss]ettings
+
+# stylecop files
+[Ss]tyle[Cc]op.[Cc]ache
+
+
