@@ -1,0 +1,14 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleProject", "Main\SimpleProject\SimpleProject.csproj", "{C12D0C09-0756-45F5-B290-4EAE306174D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Scripts", "Build Scripts", "{555FEB2A-A41E-459D-8FA3-8CA6586F885D}"
+	ProjectSection(SolutionItems) = preProject
+		Build.xml = Build.xml
+		default.ps1 = default.ps1
+		Rakefile.rb = Rakefile.rb
+		version.txt = version.txt
+	EndProjectSection
+EndProject
+Global
+EndGlobal
