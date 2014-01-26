@@ -7,15 +7,19 @@ open FParsec
 open VisualStudioSolutionFileParser.AST
 
 let ws = spaces
+
+let ch c = pchar c
+let ch_ws c = ch c .>> ws
 let str s = pstring s
 let str_ws s = str s .>> ws
-let modelCode = manyChars (noneOf ":")
-//let modelName = manyChars anyChar
-//let heading = (modelCode .>> (pchar ':') .>>. modelName) |>> ModelHeading.FromTuple
-//let heading = modelCode >> modelCode >> modelCode
-//let solutionFile = (heading) |>> SolutionFile.FromTuple
-let buildOne s = new SolutionFile(new FileHeading(s, "", ""))
-let solutionFile = (modelCode) |>> buildOne
+
+let fileVersion = (pint32 .>> pchar '.' .>>. pint32) |>> FileVersion.FromTuple
+let header = str_ws "Microsoft Visual Studio Solution File, Format Version" >>. fileVersion .>> skipRestOfLine true
+let productName = ch_ws '#' >>. restOfLine true 
+let fileHeading = (header .>>. productName) |>> FileHeading.FromTuple
+
+let solutionFile = (fileHeading) |>> SolutionFile.FromTuple
+
 let parser = solutionFile
 
 let Test p str =

@@ -16,8 +16,8 @@ namespace VisualStudioSolutionFileParser.Tests
             var result = Parser.Parse(input).Heading;
 
             Assert.AreEqual("Visual Studio 2012", result.ProductName);
-            Assert.AreEqual(12, result.MajorVersion);
-            Assert.AreEqual(00, result.MinorVersion);
+            Assert.AreEqual(12, result.Version.Major);
+            Assert.AreEqual(00, result.Version.Minor);
         }
 
         /*
