@@ -20,13 +20,12 @@ namespace VisualStudioSolutionFileParser.Tests
             Assert.AreEqual(00, result.Version.Minor);
         }
 
-        /*
         [Test]
         public void SolutionVersionNumber_is_Number_period_Number()
         {
             var input = @"12.00";
 
-            var result = SolutionFileGrammar.SolutionVersionNumber.Parse(input);
+            var result = Parser.Run(Parser.fileVersion, input);
 
             Assert.AreEqual(12, result.Major);
             Assert.AreEqual(00, result.Minor);
@@ -37,11 +36,12 @@ namespace VisualStudioSolutionFileParser.Tests
         {
             var input = @"# Visual Studio 2012";
 
-            var result = SolutionFileGrammar.ProductName.Parse(input);
+            var result = Parser.Run(Parser.productName, input);
 
             Assert.AreEqual("Visual Studio 2012", result);
         }
 
+        /*
         [Test]
         public void RoundBracketedString_is_string_surrounded_by_round_brackets()
         {

@@ -37,3 +37,8 @@ let Parse str =
     match run parser str with
     | Success(result, _, _)   -> result
     | Failure(errorMsg, errorContext, _) -> raise (new ParseException(errorMsg, errorContext))
+
+let Run p str =
+    match run p str with
+    | Success(result, _, _)   -> result
+    | Failure(errorMsg, errorContext, _) -> raise (new ParseException(errorMsg, errorContext))
