@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
-using Sprache;
 using VisualStudioSolutionFileParser.Tests.Helpers;
 
 namespace VisualStudioSolutionFileParser.Tests
 {
-	[TestFixture]
-	public class Class1
+    [TestFixture]
+	public class SpracheBasedParsingTests
 	{
 		[Test]
 		public void Header_contains_version_information()
