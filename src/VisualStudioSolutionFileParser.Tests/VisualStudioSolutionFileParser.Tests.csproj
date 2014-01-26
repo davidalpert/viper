@@ -47,7 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="FParsecBasedParsingTests.cs" />
+    <Compile Include="SpracheBasedParsingTests.cs" />
     <Compile Include="Helpers\ManifestResourceHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
