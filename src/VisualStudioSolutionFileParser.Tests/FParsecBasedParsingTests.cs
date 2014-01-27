@@ -41,16 +41,14 @@ namespace VisualStudioSolutionFileParser.Tests
             Assert.AreEqual("Visual Studio 2012", result);
         }
 
-        /*
         [Test]
         public void RoundBracketedString_is_string_surrounded_by_round_brackets()
         {
             var input = @"(something)";
 
-            var result = SolutionFileGrammar.RoundBracketedString.Parse(input);
+            var result = Parser.Run(Parser.roundBracketedString, input);
 
             Assert.AreEqual("something", result);
         }
-         */
     }
 }
