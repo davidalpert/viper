@@ -25,7 +25,10 @@ let roundBracketedString = stringSurroundedBy '(' ')'
 let fileVersion = (pint32 .>> pchar '.' .>>. pint32) |>> FileVersion.FromTuple
 let header = str_ws "Microsoft Visual Studio Solution File, Format Version" >>. fileVersion .>> skipRestOfLine true
 let productName = ch_ws '#' >>. restOfLine true 
-let fileHeading = (header .>>. productName) |>> FileHeading.FromTuple
+let fileHeading = (header .>>. productName) |>> FileHeading.FromTuple 
+
+let solutionProperty : Parser<SolutionProperty,State> = 
+    (anyStringUntil '=' .>> ch_ws '=' .>>. restOfLine true) |>> SolutionProperty.FromTuple
 
 let solutionFile = (fileHeading) |>> SolutionFile.FromTuple
 

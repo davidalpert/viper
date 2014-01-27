@@ -20,6 +20,14 @@ type FileHeading(productName: string, version:FileVersion) =
         let version, productName = t
         new FileHeading(productName,version)
 
+type SolutionProperty(name:string, value:string) =
+    member x.Name = name.Trim()
+    member x.Value = value.Trim()
+
+    static member FromTuple(t:string * string) = 
+        let name,value = t
+        new SolutionProperty(name,value)
+
 type SolutionFile(heading:FileHeading) =
     member x.Heading = heading
     with

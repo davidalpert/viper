@@ -50,5 +50,57 @@ namespace VisualStudioSolutionFileParser.Tests
 
             Assert.AreEqual("something", result);
         }
+
+        [Test]
+        public void SolutionProperty_is_Name_equals_Value()
+        {
+            var input = "HideSolutionNode = FALSE";
+
+            var result = Parser.Run(Parser.solutionProperty, input);
+
+            Assert.AreEqual("HideSolutionNode", result.Name);
+            Assert.AreEqual("FALSE", result.Value);
+        }
+
+        /*
+        [Test]
+        public void EmptySolutionFile_is_Header_followed_by_GlobalSections()
+        {
+            var input =
+@"Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Global
+    GlobalSection(SolutionProperties) = preSolution
+        HideSolutionNode = FALSE
+    EndGlobalSection
+EndGlobal
+";
+            var result = SolutionFileGrammar.Solution.Parse(input);
+
+            Assert.AreEqual(12, result.MajorVersion);
+            Assert.AreEqual(0, result.MinorVersion);
+            Assert.AreEqual("Visual Studio 2012", result.ProductName);
+            Assert.AreEqual(1, result.GlobalSections.Count);
+        }
+
+        [Test]
+        public void GlobalSection_can_parse_SolutionPropertiesSection()
+        {
+            var input =
+@"GlobalSection(SolutionProperties) = preSolution
+    HideSolutionNode = FALSE
+EndGlobalSection
+";
+
+            var result = SolutionFileGrammar.GlobalSection.Parse(input);
+
+            Assert.IsInstanceOf(typeof(SolutionPropertiesSection), result);
+            Assert.AreEqual(SectionLoadSequence.PreSolution, result.LoadSequence);
+
+            var section = result as SolutionPropertiesSection;
+            Assert.AreEqual(1, section.Properties.Count);
+            Assert.AreEqual("SolutionProperties", section.Name);
+        }
+         */
     }
 }
