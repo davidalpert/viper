@@ -6,7 +6,7 @@ using NUnit.Framework;
 using Sprache;
 using VisualStudioSolutionFileParser.Tests.Helpers;
 
-namespace VisualStudioSolutionFileParser.Tests
+namespace VisualStudioSolutionFileParser.Tests.Sprache
 {
     [TestFixture]
     public class SpracheBasedParsingTests

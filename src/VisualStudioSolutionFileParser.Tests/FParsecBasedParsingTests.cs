@@ -1,6 +1,7 @@
 using System.Linq;
 using NUnit.Framework;
 using VisualStudioSolutionFileParser;
+using VisualStudioSolutionFileParser.AST;
 
 namespace VisualStudioSolutionFileParser.Tests
 {
@@ -62,6 +63,40 @@ namespace VisualStudioSolutionFileParser.Tests
             Assert.AreEqual("FALSE", result.Value);
         }
 
+        [Test]
+        public void GlobalSectionStart_can_parse_start_of_a_global_section()
+        {
+            var input =
+@"GlobalSection(SolutionProperties) = preSolution
+    HideSolutionNode = FALSE
+EndGlobalSection
+";
+            var result = Parser.Run(Parser.globalSectionStart,input);
+
+            Assert.AreEqual("SolutionProperties", result.Item1);
+            Assert.AreEqual(LoadSequence.PreSolution, result.Item2);
+        }
+
+        [Test]
+        public void GlobalSection_can_parse_SolutionPropertiesSection()
+        {
+            var input =
+@"GlobalSection(SolutionProperties) = preSolution 
+    HideSolutionNode = FALSE
+EndGlobalSection
+";
+            var result = Parser.Run(Parser.globalSection,input);
+
+            Assert.IsInstanceOf(typeof(GlobalSection), result);
+
+            var section = result as GlobalSection;
+            Assert.AreEqual("SolutionProperties", section.Name);
+            Assert.AreEqual(LoadSequence.PreSolution, result.LoadSequence);
+            Assert.AreEqual(1, section.Properties.Length);
+            Assert.AreEqual("HideSolutionNode", section.Properties[0].Name);
+            Assert.AreEqual("FALSE", section.Properties[0].Value);
+        }
+
         /*
         [Test]
         public void EmptySolutionFile_is_Header_followed_by_GlobalSections()
@@ -83,24 +118,6 @@ EndGlobal
             Assert.AreEqual(1, result.GlobalSections.Count);
         }
 
-        [Test]
-        public void GlobalSection_can_parse_SolutionPropertiesSection()
-        {
-            var input =
-@"GlobalSection(SolutionProperties) = preSolution
-    HideSolutionNode = FALSE
-EndGlobalSection
-";
-
-            var result = SolutionFileGrammar.GlobalSection.Parse(input);
-
-            Assert.IsInstanceOf(typeof(SolutionPropertiesSection), result);
-            Assert.AreEqual(SectionLoadSequence.PreSolution, result.LoadSequence);
-
-            var section = result as SolutionPropertiesSection;
-            Assert.AreEqual(1, section.Properties.Count);
-            Assert.AreEqual("SolutionProperties", section.Name);
-        }
          */
     }
 }

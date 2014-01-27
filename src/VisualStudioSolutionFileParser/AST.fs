@@ -28,6 +28,22 @@ type SolutionProperty(name:string, value:string) =
         let name,value = t
         new SolutionProperty(name,value)
 
+type LoadSequence =
+    | PreSolution  = 0
+    | PostSolution = 1
+
+type GlobalSection(name:string, loadSequence:LoadSequence, properties:SolutionProperty list) =
+    member x.Name = name.Trim()
+    member x.LoadSequence = loadSequence
+    member x.Properties = properties
+
+    static member FromTuple2(t:string * LoadSequence) =
+        let a,b = t
+        new GlobalSection(a,b,[])
+    static member FromTuple(t:string * LoadSequence * SolutionProperty list) =
+        let a,b,c = t
+        new GlobalSection(a,b,c)
+
 type SolutionFile(heading:FileHeading) =
     member x.Heading = heading
     with
