@@ -44,13 +44,17 @@ type GlobalSection(name:string, loadSequence:LoadSequence, properties:SolutionPr
         let a,b,c = t
         new GlobalSection(a,b,c)
 
-type SolutionFile(heading:FileHeading) =
+type SolutionFile(heading:FileHeading, globals:GlobalSection list) =
     member x.Heading = heading
+    member x.GlobalSections = globals
     with
     override this.ToString() =
     //    sprintf @"%s [%A]" (this.GetType().Name) this.Heading
         sprintf "%A" this.Heading
 
-    static member FromTuple(t:FileHeading) = 
-        new SolutionFile(t)
+    static member FromTuple(t:FileHeading*GlobalSection list option) = 
+        let a,b = t
+        match b with 
+            | Some list -> new SolutionFile(a,list)
+            | None -> new SolutionFile(a,[])
 

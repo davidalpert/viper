@@ -97,7 +97,6 @@ EndGlobalSection
             Assert.AreEqual("FALSE", section.Properties[0].Value);
         }
 
-        /*
         [Test]
         public void EmptySolutionFile_is_Header_followed_by_GlobalSections()
         {
@@ -110,14 +109,12 @@ Global
     EndGlobalSection
 EndGlobal
 ";
-            var result = SolutionFileGrammar.Solution.Parse(input);
+            var result = Parser.Parse(input);
 
-            Assert.AreEqual(12, result.MajorVersion);
-            Assert.AreEqual(0, result.MinorVersion);
-            Assert.AreEqual("Visual Studio 2012", result.ProductName);
-            Assert.AreEqual(1, result.GlobalSections.Count);
+            Assert.AreEqual(12, result.Heading.Version.Major);
+            Assert.AreEqual(0, result.Heading.Version.Minor);
+            Assert.AreEqual("Visual Studio 2012", result.Heading.ProductName);
+            Assert.AreEqual(1, result.GlobalSections.Length);
         }
-
-         */
     }
 }
