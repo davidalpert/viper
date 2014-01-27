@@ -20,14 +20,17 @@ let str s = pstring s
 let str_ws s = str s .>> ws
 let ws_str_ws s = ws >>. str s .>> ws
 
+#if DEBUG
 let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
     fun stream ->
         printfn "%A: Entering %s" stream.Position label
         let reply = p stream
         printfn "%A: Leaving %s (%A)" stream.Position label reply.Status
         reply
-//let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
-//    fun stream -> p stream
+#else
+let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
+    fun stream -> p stream
+#endif
 
 let anyStringUntil c = manySatisfy ((<>) c)
 let stringSurroundedBy cStart cEnd : Parser<string,State> = between (ch cStart) (ch cEnd) (anyStringUntil cEnd) <!> "stringSurroundedBy"
@@ -61,11 +64,6 @@ let solutionFile = (fileHeading .>>. opt globalSections) |>> SolutionFile.FromTu
 
 let parser = solutionFile
 
-let Test p str =
-    match run p str with
-    | Success(result, _, _)   -> printfn "Success: %A" result
-    | Failure(errorMsg, _, _) -> printfn "Failure: %s" errorMsg
-
 exception ParseError of string * ParserError
 
 type ParseException (message:string, context:ParserError) =
@@ -77,7 +75,14 @@ let Parse str =
     | Success(result, _, _)   -> result
     | Failure(errorMsg, errorContext, _) -> raise (new ParseException(errorMsg, errorContext))
 
+#if DEBUG
+let Test p str =
+    match run p str with
+    | Success(result, _, _)   -> printfn "Success: %A" result
+    | Failure(errorMsg, _, _) -> printfn "Failure: %s" errorMsg
+
 let Run p str =
     match run p str with
     | Success(result, _, _)   -> result
     | Failure(errorMsg, errorContext, _) -> raise (new ParseException(errorMsg, errorContext))
+#endif
