@@ -65,6 +65,7 @@ namespace VisualStudioSolutionFileParser.Tests.Sprache
         }
 
         [Test]
+        [Ignore("Depricated")]
         public void EmptySolutionFile_is_Header_followed_by_GlobalSections()
         {
             var input =
