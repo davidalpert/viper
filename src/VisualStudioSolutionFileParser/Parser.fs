@@ -31,38 +31,56 @@ let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
 let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
     fun stream -> p stream
 #endif
+let flatten ((a,b),c) = (a,b,c)
+let flatten5 ((((a,b),c),d),e) = (a,b,c,d,e)
+
+let rec repeat n f a = 
+    match n with
+    | 1 -> f a
+    | x -> repeat (x-1) f a
 
 let anyStringUntil c = manySatisfy ((<>) c)
-let stringSurroundedBy cStart cEnd : Parser<string,State> = between (ch cStart) (ch cEnd) (anyStringUntil cEnd) <!> "stringSurroundedBy"
-
-let roundBracketedString = stringSurroundedBy '(' ')'
+let between_ch cStart cEnd p = between (ch cStart) (ch cEnd) p
+let string_between_ch cStart cEnd = between_ch cStart cEnd (anyStringUntil cEnd) <!> "stringSurroundedBy"
+let quotedString = string_between_ch '"' '"'
+let hexn n = manyMinMaxSatisfy n n isHex
+let guidFromTuple t =
+    let (((a,b),c),d),e = t
+    let s = sprintf "%s-%s-%s-%s-%s" a b c d e
+    Guid.Parse(s)
+let guid : Parser<Guid,State> = (hexn 8 .>> ch '-' .>>. hexn 4 .>> ch '-' .>>. hexn 4 .>> ch '-' .>>. hexn 4 .>> ch '-' .>>. hexn 12) |>> guidFromTuple <!> "guid"
+let guid_between_str sStart sEnd = between (str sStart) (str sEnd) guid
 
 let fileVersion = (pint32 .>> pchar '.' .>>. pint32) |>> FileVersion.FromTuple
 let header = str_ws "Microsoft Visual Studio Solution File, Format Version" >>. fileVersion .>> skipRestOfLine true
 let productName = ch_ws '#' >>. restOfLine true
-let fileHeading = (header .>>. productName) |>> FileHeading.FromTuple 
+let fileHeading = (header .>>. productName) |>> FileHeading.FromTuple                                                                 <!> "fileHeading"
+
+let projectNodeStart = skipString "Project"
+let projectNodeContent = pipe4 (guid_between_str "(\"{" "}\")" .>> ws_ch_ws '=') (quotedString .>> ws_ch_ws ',') (quotedString .>> ws_ch_ws ',') (guid_between_str "\"{" "}\"") (fun a b c d -> (a,b,c,d))
+let projectNodeEnd = skipString "EndProject"
+let projectNode = (ws >>. projectNodeStart >>. projectNodeContent .>> ws .>> projectNodeEnd .>> ws) |>> ProjectNode.FromTuple                <!> "projectnode"
 
 let pPreSolution = str_ws "preSolution" |>> fun _ -> LoadSequence.PreSolution
 let pPostSolution = str_ws "postSolution" |>> fun _ -> LoadSequence.PostSolution
 let loadSequence = pPreSolution <|> pPostSolution <!> "loadSequence"
 
-let globalSectionStart = ws >>. skipString "GlobalSection" >>. stringSurroundedBy '(' ')' .>>. (ws_ch_ws '=' >>. loadSequence .>> ws) <!> "sectionStart" 
+let globalSectionStart = ws >>. skipString "GlobalSection" >>. string_between_ch '(' ')' .>>. (ws_ch_ws '=' >>. loadSequence .>> ws)  <!> "sectionStart" 
 let solutionProperty : Parser<SolutionProperty,State> = 
     (anyStringUntil '=' .>> ch_ws '=' .>>. restOfLine true) |>> SolutionProperty.FromTuple                                            <!> "property"
 let globalSectionEnd = ws >>. skipString "EndGlobalSection" .>> ws                                                                    <!> "sectionEnd"
 
-let flatten ((a,b),c) = (a,b,c)
 let globalSection =
-    globalSectionStart .>>. manyTill solutionProperty globalSectionEnd |>> flatten |>> GlobalSection.FromTuple
+    globalSectionStart .>>. manyTill solutionProperty globalSectionEnd |>> flatten |>> GlobalSection.FromTuple                        <!> "globalSection"
     //globalSectionStart .>> globalSectionEnd |>> GlobalSection.FromTuple2
 
-let globalSectionsStart = skipString "Global"                                                                                         <!> "globals start"
-let globalSectionsEnd = skipString "EndGlobal"                                                                                        <!> "globals end"
-let globalSections = globalSectionsStart >>. manyTill globalSection globalSectionsEnd                                                 <!> "globals"
+let globalSectionsStart = skipString "Global" .>> notFollowedBy (str "Section")                                                       <!> "Global" 
+let globalSectionsEnd = skipString "EndGlobal"                                                                                        <!> "EndGlobal"
+let globalSections = globalSectionsStart >>. manyTill globalSection globalSectionsEnd                                                 <!> "global section"
 
-let solutionFile = (ws >>. fileHeading .>>. opt globalSections) |>> SolutionFile.FromTuple
+let solutionFile = (pipe3 (fileHeading) (opt (many (attempt projectNode))) (opt globalSections) (fun a b c -> (a,b,c))) |>> SolutionFile.FromTuple
 
-let parser = solutionFile
+let parser = ws >>. solutionFile .>> ws .>> eof
 
 exception ParseError of string * ParserError
 

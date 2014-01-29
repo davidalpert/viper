@@ -1,5 +1,7 @@
 ﻿namespace VisualStudioSolutionFileParser.AST
 
+open System 
+
 type FileVersion(major:int, minor:int) =
     member x.Major = major
     member x.Minor = minor
@@ -19,6 +21,16 @@ type FileHeading(productName: string, version:FileVersion) =
     static member FromTuple(t:FileVersion * string) = 
         let version, productName = t
         new FileHeading(productName,version)
+
+type ProjectNode(projectType, name, path, guid) =
+    member x.ProjectType = projectType
+    member x.Name = name
+    member x.Path = path
+    member x.Guid = guid
+
+    static member FromTuple(t:Guid * string * string * Guid) =
+        let pt,name,path,guid = t
+        new ProjectNode(pt, name, path, guid)
 
 type SolutionProperty(name:string, value:string) =
     member x.Name = name.Trim()
@@ -50,17 +62,25 @@ type GlobalSection(name:string, loadSequence:LoadSequence, properties:SolutionPr
         let a,b,c = t
         new GlobalSection(a,b,c)
 
-type SolutionFile(heading:FileHeading, globals:GlobalSection list) =
+type SolutionFile(heading:FileHeading, projectNodes:ProjectNode list, globals:GlobalSection list) =
     member x.Heading = heading
+    member x.Projects = projectNodes
     member x.GlobalSections = globals
     with
     override this.ToString() =
     //    sprintf @"%s [%A]" (this.GetType().Name) this.Heading
         sprintf "%A" this.Heading
 
-    static member FromTuple(t:FileHeading*GlobalSection list option) = 
-        let a,b = t
-        match b with 
-            | Some list -> new SolutionFile(a,list)
-            | None -> new SolutionFile(a,[])
+    static member FromTuple(t:FileHeading*ProjectNode list option*GlobalSection list option) = 
+        let a,b,c = t
+        let projects = 
+            match b with 
+                | Some list -> list
+                | None -> []
+        let globals = 
+            match c with 
+                | Some list -> list
+                | None -> []
+        new SolutionFile(a,projects,globals)
+
 

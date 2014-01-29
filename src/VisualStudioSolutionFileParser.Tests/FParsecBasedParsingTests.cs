@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using NUnit.Framework;
 using VisualStudioSolutionFileParser;
@@ -40,16 +41,6 @@ namespace VisualStudioSolutionFileParser.Tests
             var result = Parser.Run(Parser.productName, input);
 
             Assert.AreEqual("Visual Studio 2012", result);
-        }
-
-        [Test]
-        public void RoundBracketedString_is_string_surrounded_by_round_brackets()
-        {
-            var input = @"(something)";
-
-            var result = Parser.Run(Parser.roundBracketedString, input);
-
-            Assert.AreEqual("something", result);
         }
 
         [Test]
@@ -115,6 +106,27 @@ EndGlobal
             Assert.AreEqual(0, result.Heading.Version.Minor);
             Assert.AreEqual("Visual Studio 2012", result.Heading.ProductName);
             Assert.AreEqual(1, result.GlobalSections.Length);
+        }
+
+        [Test]
+        public void Guid_is_32_hex_with_hypens()
+        {
+            var input = "64A5EC94-C0AA-4BC1-8009-A214999C08B8";
+            var expected = Guid.Parse("{" + input + "}");
+
+            var result = Parser.Run(Parser.guid, input);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void ProjectNode_is_type_name_path_guid()
+        {
+            var input = @"
+Project(""{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"") = ""HttpWebAdapters"", ""HttpWebAdapters\HttpWebAdapters.csproj"", ""{AE7D2A46-3F67-4986-B04B-7DCE79A549A5}""
+EndProject
+";
+            var result = Parser.Run(Parser.projectNode, input);
         }
     }
 }
