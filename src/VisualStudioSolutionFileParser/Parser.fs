@@ -70,14 +70,12 @@ let loadSequence = pPreSolution <|> pPostSolution                               
 let loadSequenceAssignment = ws_ch_ws '=' >>. loadSequence .>> skipRestOfLine true
 
 let supportedGlobalSectionStart n = ws >>. str "GlobalSection(" >>. str n .>> str ")" .>> ws_ch_ws '=' .>>. loadSequence .>> ws             //<!> "globalSectionStart" 
-//let solutionProperty = (anyStringUntil '=' .>> ch_ws '=' .>>. restOfLine true) |>> SolutionProperty                                   //<!> "solutionProperty"
-//let globalSectionEnd = ws >>. skipString "EndGlobalSection" .>> ws                                                                    //<!> "globalSectionEnd"
-let solutionProperties = supportedGlobalSectionStart "SolutionProperties"
 
-let joinStrings stringList = List.fold (fun acc s -> acc + s) "" stringList
+let solutionProperty : Parser<SolutionProperty,State> = (anyStringUntil_ch ' ' .>> ws_ch_ws '=' .>>. restOfLine false) |>> SolutionProperty                                   //<!> "solutionProperty"
+
+//let joinStrings stringList = List.fold (fun acc s -> acc + s) "" stringList
 
 let globalSectionStart = str "GlobalSection" >>. string_between_ch '(' ')'                                                            <!> "globalSectionStart" 
-//let solutionProperty = (anyStringUntil '=' .>> ch_ws '=' .>>. restOfLine true) |>> SolutionProperty                                   //<!> "solutionProperty"
 let globalSectionEnd = skipString "EndGlobalSection"                                                                                  <!> "globalSectionEnd"
 let globalSectionContent = charsTillString "EndGlobalSection" false (Int32.MaxValue)                                                      <!> "globalSectionContent"
 
@@ -86,11 +84,11 @@ let unrecognizedGlobalSection = pipe4 (ws >>. globalSectionStart) loadSequenceAs
 
 let globalSection = unrecognizedGlobalSection
 
-let globalSectionsStart = skipString "Global" .>> notFollowedBy (str "Section")                                                       //<!> "Global" 
-let globalSectionsEnd = skipString "EndGlobal"                                                                                        //<!> "EndGlobal"
-let globalSections = globalSectionsStart >>. manyTill globalSection globalSectionsEnd                                                 <!> "Globals"
+let globalNodeStart = skipString "Global" .>> notFollowedBy (str "Section")                                                       //<!> "Global" 
+let globalNodeEnd = skipString "EndGlobal"                                                                                        //<!> "EndGlobal"
+let globalNode = globalNodeStart >>. manyTill globalSection globalNodeEnd                                                 <!> "Globals"
 
-let solutionFile = (pipe3 (fileHeading) (opt projects) (opt globalSections) (fun a b c -> (a,b,c))) |>> SolutionFile.FromTuple
+let solutionFile = (pipe3 (fileHeading) (opt projects) (opt globalNode) (fun a b c -> (a,b,c))) |>> SolutionFile.FromTuple
 
 let parser = ws >>. solutionFile .>> ws .>> eof
 

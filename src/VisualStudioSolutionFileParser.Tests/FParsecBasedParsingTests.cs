@@ -76,7 +76,6 @@ EndGlobalSection
             Assert.AreEqual("    HideSolutionNode = FALSE\n", unrecognizedSection.Item3);
         }
 
-        /*
         [Test]
         public void SolutionProperty_is_Name_equals_Value()
         {
@@ -90,22 +89,7 @@ EndGlobalSection
         }
 
         [Test]
-        public void GlobalSectionStart_can_parse_start_of_a_global_section()
-        {
-            var input =
-@"GlobalSection(SolutionProperties) = preSolution
-    HideSolutionNode = FALSE
-EndGlobalSection
-";
-            var result = Parser.Run(Parser.globalSectionStart,input);
-
-            //Assert.IsAssignableFrom(typeof(AST.SolutionProperties));
-            Assert.AreEqual("SolutionProperties", result.Item1);
-            Assert.AreEqual(LoadSequence.PreSolution, result.Item2);
-        }
-
-        [Test]
-        public void GlobalSection_can_parse_SolutionPropertiesSection()
+        public void GlobalSection_can_parse_SolutionPropertiesNode()
         {
             var input =
 @"GlobalSection(SolutionProperties) = preSolution 
@@ -114,14 +98,14 @@ EndGlobalSection
 ";
             var result = Parser.Run(Parser.globalSection,input);
 
-            Assert.IsInstanceOf(typeof(GlobalSection), result);
+            Assert.IsInstanceOf(typeof(AST.GlobalSection.SolutionProperties), result);
 
-            var section = result as GlobalSection;
-            Assert.AreEqual("SolutionProperties", section.Name);
-            Assert.AreEqual(LoadSequence.PreSolution, result.LoadSequence);
-            Assert.AreEqual(1, section.Properties.Length);
+            var section = result as AST.GlobalSection.SolutionProperties;
+            Assert.AreEqual(LoadSequence.PreSolution, section.Item1);
+            Assert.AreEqual(1, section.Item2.Length);
         }
 
+        /*
         [Test]
         public void EmptySolutionFile_is_Header_followed_by_GlobalSections()
         {
