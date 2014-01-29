@@ -73,10 +73,10 @@ let loadSequenceAssignment = ws_ch_ws '=' >>. loadSequence .>> skipRestOfLine tr
 
 let globalSectionStart = str "GlobalSection" >>. string_between_ch '(' ')'                                                            <!> "globalSectionStart" 
 let globalSectionContent = charsTillString "EndGlobalSection" false (Int32.MaxValue)                                                  <!> "globalSectionContent"
-let globalSectionEnd = ws >>. str "EndGlobalSection"                                                                                         <!> "globalSectionEnd"
+let globalSectionEnd = ws >>. str "EndGlobalSection" .>> ws                                                                                      <!> "globalSectionEnd"
 
 let unrecognizedGlobalSection = pipe4 (ws >>. globalSectionStart) loadSequenceAssignment (opt globalSectionContent) (globalSectionEnd .>> ws)
-                                    (fun name loadSeq content endTag -> UnrecognizedGlobalSection(name,loadSeq,content))
+                                    (fun name loadSeq content endTag -> UnrecognizedGlobalSection(name,loadSeq,content))              <!> "unrecognized global section"
 
 let supportedGlobalSectionStart name = (ws >>. str "GlobalSection(" >>. str name .>> str ")") |>> ignore
 let supportedGlobalSection name p = supportedGlobalSectionStart name >>. loadSequenceAssignment .>>. p .>> globalSectionEnd           <!> "supportedGlobalSection"
@@ -85,7 +85,7 @@ let solutionProperty = ws >>. (anyStringUntil_ch ' ' .>> ws_ch_ws '=' .>>. restO
 let globalSolutionPropertiesContent = many (attempt solutionProperty)                                                                 <!> "SolutionProperties Content"
 let globalSolutionProperties = supportedGlobalSection "SolutionProperties" globalSolutionPropertiesContent |>> SolutionPropertiesNode <!> "SolutionProperties"
 
-let globalSection = attempt globalSolutionProperties <|> unrecognizedGlobalSection
+let globalSection = attempt globalSolutionProperties <|> attempt unrecognizedGlobalSection
 
 let globalNodeStart = skipString "Global" .>> notFollowedBy (str "Section")                                                       //<!> "Global" 
 let globalNodeEnd = skipString "EndGlobal"                                                                                        //<!> "EndGlobal"
