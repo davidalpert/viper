@@ -23,6 +23,7 @@ namespace VisualStudioSolutionFileParser.Tests.TestDataScenarios
         }
 
         [Test]
+        [Ignore("deferred until I settle on a method to pretty print the AST")]
         public void CanPrint()
         {
             var result = ParseTestData();
@@ -35,7 +36,7 @@ namespace VisualStudioSolutionFileParser.Tests.TestDataScenarios
         {
             var result = ParseTestData();
 
-            Assert.AreEqual(3, result.GlobalSections.Length);
+            Assert.AreEqual(3, result.Item3.Length);
         }
     }
 }

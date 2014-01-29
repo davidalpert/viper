@@ -33,25 +33,4 @@ type GlobalSection =
     | SolutionPropertiesNode of LoadSequence * SolutionProperty list 
     | UnrecognizedGlobalSection of SectionName * LoadSequence * SectionContents option
 
-type SolutionFile(heading:FileHeading, projectNodes:ProjectNode list, globals:GlobalSection list) =
-    member x.Heading = heading
-    member x.Projects = projectNodes
-    member x.GlobalSections = globals
-    with
-    override this.ToString() =
-    //    sprintf @"%s [%A]" (this.GetType().Name) this.Heading
-        sprintf "%A" this.Heading
-
-    static member FromTuple(t:FileHeading*ProjectNode list option*GlobalSection list option) = 
-        let a,b,c = t
-        let projects = 
-            match b with 
-                | Some list -> list
-                | None -> []
-        let globals = 
-            match c with 
-                | Some list -> list
-                | None -> []
-        new SolutionFile(a,projects,globals)
-
-
+type SolutionFile = SolutionFile of FileHeading * ProjectNode list * GlobalSection list

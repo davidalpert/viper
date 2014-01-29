@@ -5,6 +5,9 @@ obj
 # MSTest test results
 TestResults
 
+# Approval tests
+*.received.txt
+
 # nuget package repository
 packages
 

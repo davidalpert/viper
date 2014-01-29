@@ -87,11 +87,17 @@ let globalSolutionProperties = supportedGlobalSection "SolutionProperties" globa
 
 let globalSection = attempt globalSolutionProperties <|> attempt unrecognizedGlobalSection
 
+let emptyIfNone items = 
+    match items with
+    | Some x -> x
+    | None -> []
+
 let globalNodeStart = skipString "Global" .>> notFollowedBy (str "Section")                                                       //<!> "Global" 
 let globalNodeEnd = skipString "EndGlobal"                                                                                        //<!> "EndGlobal"
-let globalNode = globalNodeStart >>. manyTill globalSection globalNodeEnd                                                 <!> "Globals"
+let globalNode = globalNodeStart >>. manyTill globalSection globalNodeEnd                                                         <!> "Globals"
 
-let solutionFile = (pipe3 (fileHeading) (opt projects) (opt globalNode) (fun a b c -> (a,b,c))) |>> SolutionFile.FromTuple
+let solutionFile = pipe3 (fileHeading) (opt projects) (opt globalNode) 
+                    (fun head proj glob -> SolutionFile(head, emptyIfNone proj, emptyIfNone glob))
 
 let parser = ws >>. solutionFile .>> ws .>> eof
 

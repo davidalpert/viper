@@ -49,7 +49,7 @@ namespace VisualStudioSolutionFileParser.Tests
                 @"Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012";
 
-            var result = Parser.Parse(input).Heading;
+            var result = Parser.Parse(input).Item1;
 
             Assert.IsAssignableFrom(typeof (AST.FileHeading), result);
             Assert.AreEqual("Visual Studio 2012", result.Item1);
