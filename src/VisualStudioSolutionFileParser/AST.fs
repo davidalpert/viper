@@ -13,15 +13,11 @@ type PropertyName = string
 type PropertyValue = string
 type SolutionProperty = SolutionProperty of PropertyName * PropertyValue
 
-type ProjectNode(projectType, name, path, guid) =
-    member x.ProjectType = projectType
-    member x.Name = name
-    member x.Path = path
-    member x.Guid = guid
-
-    static member FromTuple(t:Guid * string * string * Guid) =
-        let pt,name,path,guid = t
-        new ProjectNode(pt, name, path, guid)
+type ProjectType = Guid
+type ProjectID = Guid
+type ProjectName = string
+type ProjectPath = string // relative path, as expressed in the solution file
+type ProjectNode = ProjectNode of ProjectType * ProjectName * ProjectPath * ProjectID
 
 type LoadSequence =
     | PreSolution

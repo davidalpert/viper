@@ -58,9 +58,9 @@ let productName = ws_ch_ws '#' >>. restOfLine true
 let fileHeading = pipe3 header fileVersion productName (fun hd version name -> FileHeading(name, version)) <!> "fileHeading"
 
 let projectNodeStart = skipString "Project"
-let projectNodeContent = pipe4 (guid_between_str "(\"{" "}\")" .>> ws_ch_ws '=') (quotedString .>> ws_ch_ws ',') (quotedString .>> ws_ch_ws ',') (guid_between_str "\"{" "}\"") (fun a b c d -> (a,b,c,d))
+let projectNodeContent = tuple4 (guid_between_str "(\"{" "}\")" .>> ws_ch_ws '=') (quotedString .>> ws_ch_ws ',') (quotedString .>> ws_ch_ws ',') (guid_between_str "\"{" "}\"") 
 let projectNodeEnd = skipString "EndProject"
-let projectNode = (ws >>. projectNodeStart >>. projectNodeContent .>> ws .>> projectNodeEnd .>> ws) |>> ProjectNode.FromTuple         <!> "projectnode"
+let projectNode = (ws >>. projectNodeStart >>. projectNodeContent .>> ws .>> projectNodeEnd) |>> ProjectNode <!> "projectnode"
 let projects = many (attempt projectNode)                                                                                             <!> "Projects"
 
 let pPreSolution = str "preSolution" |>> fun _ -> LoadSequence.PreSolution
@@ -94,7 +94,7 @@ let emptyIfNone items =
 
 let globalNodeStart = skipString "Global" .>> notFollowedBy (str "Section")                                                       //<!> "Global" 
 let globalNodeEnd = skipString "EndGlobal"                                                                                        //<!> "EndGlobal"
-let globalNode = globalNodeStart >>. manyTill globalSection globalNodeEnd                                                         <!> "Globals"
+let globalNode = ws >>. globalNodeStart >>. manyTill globalSection globalNodeEnd                                                         <!> "Globals"
 
 let solutionFile = pipe3 (fileHeading) (opt projects) (opt globalNode) 
                     (fun head proj glob -> SolutionFile(head, emptyIfNone proj, emptyIfNone glob))
