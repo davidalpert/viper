@@ -51,10 +51,11 @@ let guidFromTuple t =
 let guid : Parser<Guid,State> = (hexn 8 .>> ch '-' .>>. hexn 4 .>> ch '-' .>>. hexn 4 .>> ch '-' .>>. hexn 4 .>> ch '-' .>>. hexn 12) |>> guidFromTuple //<!> "guid"
 let guid_between_str sStart sEnd = between (str sStart) (str sEnd) guid
 
-let fileVersion = (pint32 .>> pchar '.' .>>. pint32) |>> FileVersion.FromTuple
-let header = str_ws "Microsoft Visual Studio Solution File, Format Version" >>. fileVersion .>> skipRestOfLine true
-let productName = ch_ws '#' >>. restOfLine true
-let fileHeading = (header .>>. productName) |>> FileHeading.FromTuple                                                                 <!> "fileHeading"
+let header = str_ws "Microsoft Visual Studio Solution File, Format Version" 
+let fileVersion = pipe2 (pint32 .>> pchar '.') (pint32) 
+                     (fun maj min -> FileVersion(maj,min))
+let productName = ws_ch_ws '#' >>. restOfLine true
+let fileHeading = pipe3 header fileVersion productName (fun hd version name -> FileHeading(name, version)) <!> "fileHeading"
 
 let projectNodeStart = skipString "Project"
 let projectNodeContent = pipe4 (guid_between_str "(\"{" "}\")" .>> ws_ch_ws '=') (quotedString .>> ws_ch_ws ',') (quotedString .>> ws_ch_ws ',') (guid_between_str "\"{" "}\"") (fun a b c d -> (a,b,c,d))
