@@ -23,6 +23,9 @@ type FileHeading(productName: string, version:FileVersion) =
 type SolutionProperty(name:string, value:string) =
     member x.Name = name.Trim()
     member x.Value = value.Trim()
+    with
+    override this.ToString() =
+        sprintf "%s[%s = %s]" (this.GetType().Name) this.Name this.Value
 
     static member FromTuple(t:string * string) = 
         let name,value = t
@@ -36,6 +39,9 @@ type GlobalSection(name:string, loadSequence:LoadSequence, properties:SolutionPr
     member x.Name = name.Trim()
     member x.LoadSequence = loadSequence
     member x.Properties = properties
+    with
+    override this.ToString() =
+        sprintf "%s[%s - %s]" (this.GetType().Name) this.Name (this.LoadSequence.ToString())
 
     static member FromTuple2(t:string * LoadSequence) =
         let a,b = t

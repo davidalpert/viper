@@ -60,7 +60,7 @@ let globalSectionsStart = skipString "Global"                                   
 let globalSectionsEnd = skipString "EndGlobal"                                                                                        <!> "globals end"
 let globalSections = globalSectionsStart >>. manyTill globalSection globalSectionsEnd                                                 <!> "globals"
 
-let solutionFile = (fileHeading .>>. opt globalSections) |>> SolutionFile.FromTuple
+let solutionFile = (ws >>. fileHeading .>>. opt globalSections) |>> SolutionFile.FromTuple
 
 let parser = solutionFile
 
