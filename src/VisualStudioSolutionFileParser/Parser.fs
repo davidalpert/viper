@@ -39,9 +39,9 @@ let rec repeat n f a =
     | 1 -> f a
     | x -> repeat (x-1) f a
 
-let anyStringUntil c = manySatisfy ((<>) c)
+let anyStringUntil_ch c = manySatisfy ((<>) c)
 let between_ch cStart cEnd p = between (ch cStart) (ch cEnd) p
-let string_between_ch cStart cEnd = between_ch cStart cEnd (anyStringUntil cEnd) //<!> "stringSurroundedBy"
+let string_between_ch cStart cEnd = between_ch cStart cEnd (anyStringUntil_ch cEnd) //<!> "stringSurroundedBy"
 let quotedString = string_between_ch '"' '"'
 let hexn n = manyMinMaxSatisfy n n isHex
 let guidFromTuple t =
@@ -63,18 +63,28 @@ let projectNodeEnd = skipString "EndProject"
 let projectNode = (ws >>. projectNodeStart >>. projectNodeContent .>> ws .>> projectNodeEnd .>> ws) |>> ProjectNode.FromTuple         <!> "projectnode"
 let projects = many (attempt projectNode)                                                                                             <!> "Projects"
 
-let pPreSolution = str_ws "preSolution" |>> fun _ -> LoadSequence.PreSolution
-let pPostSolution = str_ws "postSolution" |>> fun _ -> LoadSequence.PostSolution
+let pPreSolution = str "preSolution" |>> fun _ -> LoadSequence.PreSolution
+let pPostSolution = str "postSolution" |>> fun _ -> LoadSequence.PostSolution
 let loadSequence = pPreSolution <|> pPostSolution                                                                                     //<!> "loadSequence"
 
-let globalSectionStart = ws >>. skipString "GlobalSection" >>. string_between_ch '(' ')' .>>. (ws_ch_ws '=' >>. loadSequence .>> ws)  //<!> "sectionStart" 
-let solutionProperty : Parser<SolutionProperty,State> = 
-    (anyStringUntil '=' .>> ch_ws '=' .>>. restOfLine true) |>> SolutionProperty.FromTuple                                            //<!> "property"
-let globalSectionEnd = ws >>. skipString "EndGlobalSection" .>> ws                                                                    //<!> "sectionEnd"
+let loadSequenceAssignment = ws_ch_ws '=' >>. loadSequence .>> skipRestOfLine true
 
-let globalSection =
-    globalSectionStart .>>. manyTill solutionProperty globalSectionEnd |>> flatten |>> GlobalSection.FromTuple                        <!> "globalSection"
-    //globalSectionStart .>> globalSectionEnd |>> GlobalSection.FromTuple2
+let supportedGlobalSectionStart n = ws >>. str "GlobalSection(" >>. str n .>> str ")" .>> ws_ch_ws '=' .>>. loadSequence .>> ws             //<!> "globalSectionStart" 
+//let solutionProperty = (anyStringUntil '=' .>> ch_ws '=' .>>. restOfLine true) |>> SolutionProperty                                   //<!> "solutionProperty"
+//let globalSectionEnd = ws >>. skipString "EndGlobalSection" .>> ws                                                                    //<!> "globalSectionEnd"
+let solutionProperties = supportedGlobalSectionStart "SolutionProperties"
+
+let joinStrings stringList = List.fold (fun acc s -> acc + s) "" stringList
+
+let globalSectionStart = str "GlobalSection" >>. string_between_ch '(' ')'                                                            <!> "globalSectionStart" 
+//let solutionProperty = (anyStringUntil '=' .>> ch_ws '=' .>>. restOfLine true) |>> SolutionProperty                                   //<!> "solutionProperty"
+let globalSectionEnd = skipString "EndGlobalSection"                                                                                  <!> "globalSectionEnd"
+let globalSectionContent = charsTillString "EndGlobalSection" false (Int32.MaxValue)                                                      <!> "globalSectionContent"
+
+let unrecognizedGlobalSection = pipe4 (ws >>. globalSectionStart) loadSequenceAssignment globalSectionContent (globalSectionEnd .>> ws)
+                                    (fun name loadSeq content endTag -> UnrecognizedGlobalSection(name,loadSeq,content))
+
+let globalSection = unrecognizedGlobalSection
 
 let globalSectionsStart = skipString "Global" .>> notFollowedBy (str "Section")                                                       //<!> "Global" 
 let globalSectionsEnd = skipString "EndGlobal"                                                                                        //<!> "EndGlobal"

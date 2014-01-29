@@ -58,14 +58,35 @@ namespace VisualStudioSolutionFileParser.Tests
         }
 
         [Test]
+        public void GlobalSection_can_parse_an_unrecognized_section()
+        {
+            var input =
+@"GlobalSection(SomeNewSection) = preSolution
+    HideSolutionNode = FALSE
+EndGlobalSection
+";
+            var result = Parser.Run(Parser.globalSection,input);
+
+            Assert.IsAssignableFrom(typeof(AST.GlobalSection.UnrecognizedGlobalSection), result);
+
+            var unrecognizedSection = result as AST.GlobalSection.UnrecognizedGlobalSection;
+            Assert.IsNotNull(unrecognizedSection);
+            Assert.AreEqual("SomeNewSection", unrecognizedSection.Item1);
+            Assert.AreEqual(LoadSequence.PreSolution, unrecognizedSection.Item2);
+            Assert.AreEqual("    HideSolutionNode = FALSE\n", unrecognizedSection.Item3);
+        }
+
+        /*
+        [Test]
         public void SolutionProperty_is_Name_equals_Value()
         {
             var input = "HideSolutionNode = FALSE";
 
             var result = Parser.Run(Parser.solutionProperty, input);
 
-            Assert.AreEqual("HideSolutionNode", result.Name);
-            Assert.AreEqual("FALSE", result.Value);
+            Assert.IsAssignableFrom(typeof(AST.SolutionProperty), result);
+            Assert.AreEqual("HideSolutionNode", result.Item1);
+            Assert.AreEqual("FALSE", result.Item2);
         }
 
         [Test]
@@ -78,6 +99,7 @@ EndGlobalSection
 ";
             var result = Parser.Run(Parser.globalSectionStart,input);
 
+            //Assert.IsAssignableFrom(typeof(AST.SolutionProperties));
             Assert.AreEqual("SolutionProperties", result.Item1);
             Assert.AreEqual(LoadSequence.PreSolution, result.Item2);
         }
@@ -98,8 +120,6 @@ EndGlobalSection
             Assert.AreEqual("SolutionProperties", section.Name);
             Assert.AreEqual(LoadSequence.PreSolution, result.LoadSequence);
             Assert.AreEqual(1, section.Properties.Length);
-            Assert.AreEqual("HideSolutionNode", section.Properties[0].Name);
-            Assert.AreEqual("FALSE", section.Properties[0].Value);
         }
 
         [Test]
@@ -142,5 +162,6 @@ EndProject
 ";
             var result = Parser.Run(Parser.projectNode, input);
         }
+         */
     }
 }

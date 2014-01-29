@@ -2,9 +2,16 @@
 
 open System 
 
-type FileVersion = FileVersion of int * int
+type MajorVersion = int
+type MinorVersion = int
+type FileVersion = FileVersion of MajorVersion * MinorVersion
 
-type FileHeading = FileHeading of string * FileVersion
+type ProductName = string
+type FileHeading = FileHeading of ProductName * FileVersion 
+
+type PropertyName = string
+type PropertyValue = string
+type SolutionProperty = SolutionProperty of PropertyName * PropertyValue
 
 type ProjectNode(projectType, name, path, guid) =
     member x.ProjectType = projectType
@@ -16,35 +23,15 @@ type ProjectNode(projectType, name, path, guid) =
         let pt,name,path,guid = t
         new ProjectNode(pt, name, path, guid)
 
-type SolutionProperty(name:string, value:string) =
-    member x.Name = name.Trim()
-    member x.Value = value.Trim()
-    with
-    override this.ToString() =
-        sprintf "%s[%s = %s]" (this.GetType().Name) this.Name this.Value
-
-    static member FromTuple(t:string * string) = 
-        let name,value = t
-        new SolutionProperty(name,value)
-
 type LoadSequence =
-    | PreSolution  = 0
-    | PostSolution = 1
+    | PreSolution
+    | PostSolution
 
-type GlobalSection(name:string, loadSequence:LoadSequence, properties:SolutionProperty list) =
-    member x.Name = name.Trim()
-    member x.LoadSequence = loadSequence
-    member x.Properties = properties
-    with
-    override this.ToString() =
-        sprintf "%s[%s - %s]" (this.GetType().Name) this.Name (this.LoadSequence.ToString())
-
-    static member FromTuple2(t:string * LoadSequence) =
-        let a,b = t
-        new GlobalSection(a,b,[])
-    static member FromTuple(t:string * LoadSequence * SolutionProperty list) =
-        let a,b,c = t
-        new GlobalSection(a,b,c)
+type SectionName = string
+type SectionContents = string
+type GlobalSection =
+    | SolutionProperties of LoadSequence * SolutionProperty list
+    | UnrecognizedGlobalSection of SectionName * LoadSequence * SectionContents
 
 type SolutionFile(heading:FileHeading, projectNodes:ProjectNode list, globals:GlobalSection list) =
     member x.Heading = heading
