@@ -30,8 +30,8 @@ type LoadSequence =
 type SectionName = string
 type SectionContents = string
 type GlobalSection =
-    | SolutionProperties of LoadSequence * SolutionProperty list
-    | UnrecognizedGlobalSection of SectionName * LoadSequence * SectionContents
+    | SolutionPropertiesNode of LoadSequence * SolutionProperty list 
+    | UnrecognizedGlobalSection of SectionName * LoadSequence * SectionContents option
 
 type SolutionFile(heading:FileHeading, projectNodes:ProjectNode list, globals:GlobalSection list) =
     member x.Heading = heading

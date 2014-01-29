@@ -65,24 +65,27 @@ let projects = many (attempt projectNode)                                       
 
 let pPreSolution = str "preSolution" |>> fun _ -> LoadSequence.PreSolution
 let pPostSolution = str "postSolution" |>> fun _ -> LoadSequence.PostSolution
-let loadSequence = pPreSolution <|> pPostSolution                                                                                     //<!> "loadSequence"
+let loadSequence = pPreSolution <|> pPostSolution                                                                                     <!> "loadSequence"
 
 let loadSequenceAssignment = ws_ch_ws '=' >>. loadSequence .>> skipRestOfLine true
-
-let supportedGlobalSectionStart n = ws >>. str "GlobalSection(" >>. str n .>> str ")" .>> ws_ch_ws '=' .>>. loadSequence .>> ws             //<!> "globalSectionStart" 
-
-let solutionProperty : Parser<SolutionProperty,State> = (anyStringUntil_ch ' ' .>> ws_ch_ws '=' .>>. restOfLine false) |>> SolutionProperty                                   //<!> "solutionProperty"
 
 //let joinStrings stringList = List.fold (fun acc s -> acc + s) "" stringList
 
 let globalSectionStart = str "GlobalSection" >>. string_between_ch '(' ')'                                                            <!> "globalSectionStart" 
-let globalSectionEnd = skipString "EndGlobalSection"                                                                                  <!> "globalSectionEnd"
-let globalSectionContent = charsTillString "EndGlobalSection" false (Int32.MaxValue)                                                      <!> "globalSectionContent"
+let globalSectionContent = charsTillString "EndGlobalSection" false (Int32.MaxValue)                                                  <!> "globalSectionContent"
+let globalSectionEnd = ws >>. str "EndGlobalSection"                                                                                         <!> "globalSectionEnd"
 
-let unrecognizedGlobalSection = pipe4 (ws >>. globalSectionStart) loadSequenceAssignment globalSectionContent (globalSectionEnd .>> ws)
+let unrecognizedGlobalSection = pipe4 (ws >>. globalSectionStart) loadSequenceAssignment (opt globalSectionContent) (globalSectionEnd .>> ws)
                                     (fun name loadSeq content endTag -> UnrecognizedGlobalSection(name,loadSeq,content))
 
-let globalSection = unrecognizedGlobalSection
+let supportedGlobalSectionStart name = (ws >>. str "GlobalSection(" >>. str name .>> str ")") |>> ignore
+let supportedGlobalSection name p = supportedGlobalSectionStart name >>. loadSequenceAssignment .>>. p .>> globalSectionEnd           <!> "supportedGlobalSection"
+
+let solutionProperty = ws >>. (anyStringUntil_ch ' ' .>> ws_ch_ws '=' .>>. restOfLine false) |>> SolutionProperty  <!> "  Solution Property"
+let globalSolutionPropertiesContent = many (attempt solutionProperty)                                                                 <!> "SolutionProperties Content"
+let globalSolutionProperties = supportedGlobalSection "SolutionProperties" globalSolutionPropertiesContent |>> SolutionPropertiesNode <!> "SolutionProperties"
+
+let globalSection = attempt globalSolutionProperties <|> unrecognizedGlobalSection
 
 let globalNodeStart = skipString "Global" .>> notFollowedBy (str "Section")                                                       //<!> "Global" 
 let globalNodeEnd = skipString "EndGlobal"                                                                                        //<!> "EndGlobal"

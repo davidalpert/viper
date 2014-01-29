@@ -73,7 +73,7 @@ EndGlobalSection
             Assert.IsNotNull(unrecognizedSection);
             Assert.AreEqual("SomeNewSection", unrecognizedSection.Item1);
             Assert.AreEqual(LoadSequence.PreSolution, unrecognizedSection.Item2);
-            Assert.AreEqual("    HideSolutionNode = FALSE\n", unrecognizedSection.Item3);
+            Assert.AreEqual("    HideSolutionNode = FALSE\n", unrecognizedSection.Item3.Value);
         }
 
         [Test]
@@ -98,9 +98,10 @@ EndGlobalSection
 ";
             var result = Parser.Run(Parser.globalSection,input);
 
-            Assert.IsInstanceOf(typeof(AST.GlobalSection.SolutionProperties), result);
+            Assert.IsInstanceOf(typeof(AST.GlobalSection.SolutionPropertiesNode), result);
 
-            var section = result as AST.GlobalSection.SolutionProperties;
+            var section = result as AST.GlobalSection.SolutionPropertiesNode;
+            Assert.IsNotNull(section);
             Assert.AreEqual(LoadSequence.PreSolution, section.Item1);
             Assert.AreEqual(1, section.Item2.Length);
         }
