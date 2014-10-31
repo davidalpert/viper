@@ -10,6 +10,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{870601
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Viper.Parsing", "Viper.Parsing\Viper.Parsing.fsproj", "{E7155F6D-619E-4A72-A687-30466D60502D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viper.Model", "Viper.Model\Viper.Model.csproj", "{7CFB8F2E-D8A8-4421-A661-FE34D6FCF7D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +24,14 @@ Global
 		{E7E4B065-8F6A-4710-8D64-B63BA397369C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7E4B065-8F6A-4710-8D64-B63BA397369C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7E4B065-8F6A-4710-8D64-B63BA397369C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7155F6D-619E-4A72-A687-30466D60502D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7155F6D-619E-4A72-A687-30466D60502D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7155F6D-619E-4A72-A687-30466D60502D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7155F6D-619E-4A72-A687-30466D60502D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CFB8F2E-D8A8-4421-A661-FE34D6FCF7D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CFB8F2E-D8A8-4421-A661-FE34D6FCF7D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CFB8F2E-D8A8-4421-A661-FE34D6FCF7D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CFB8F2E-D8A8-4421-A661-FE34D6FCF7D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

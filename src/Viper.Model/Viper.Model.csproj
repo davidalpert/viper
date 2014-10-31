@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E7E4B065-8F6A-4710-8D64-B63BA397369C}</ProjectGuid>
+    <ProjectGuid>{7CFB8F2E-D8A8-4421-A661-FE34D6FCF7D9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VisualStudioSolutionFileParser.Tests</RootNamespace>
-    <AssemblyName>VisualStudioSolutionFileParser.Tests</AssemblyName>
+    <RootNamespace>Viper.Model</RootNamespace>
+    <AssemblyName>Viper.Model</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -38,48 +38,29 @@
     <Reference Include="Microsoft.Experimental.Collections">
       <HintPath>..\packages\Microsoft.Experimental.Collections.1.0.3-alpha\lib\portable-net45+win8+wp8\Microsoft.Experimental.Collections.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Sprache">
-      <HintPath>..\packages\Sprache.1.10.0.28\lib\net40\Sprache.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
-    <Compile Include="Helpers\ManifestResourceHelper.cs" />
+    <Compile Include="SolutionFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="TestData\EmptySolution.sln" />
-    <EmbeddedResource Include="TestData\Example.00.sln" />
-    <EmbeddedResource Include="TestData\Example.01.sln" />
-    <EmbeddedResource Include="TestData\Example.02.sln" />
-    <EmbeddedResource Include="TestData\Example.03.sln" />
-    <EmbeddedResource Include="TestData\HttpWebAdapters.sln" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Viper.Model\Viper.Model.csproj">
-      <Project>{7CFB8F2E-D8A8-4421-A661-FE34D6FCF7D9}</Project>
-      <Name>Viper.Model</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Viper.Parsing\Viper.Parsing.fsproj">
-      <Project>{e7155f6d-619e-4a72-a687-30466d60502d}</Project>
-      <Name>Viper.Parsing</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
