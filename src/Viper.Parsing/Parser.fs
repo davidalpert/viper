@@ -29,12 +29,22 @@ module SolutionFileParser =
     let text_between_str openString closeString =
         ws_str_ws openString >>. manyCharsTill anyChar (ws_str_ws closeString) .>> ws_str_ws closeString
 
-    let pUnrecognizedGlobalSection sectionName loadSequence closingTag = manyCharsTill anyChar (str closingTag) |>> (fun content -> new UnrecognizedGlobalSection(sectionName, content, loadSequence) :> IGlobalSection) <!> "UnrecognizedGlobalSection"
+    let pUnrecognizedGlobalSection sectionName loadSequence closingTag =
+        manyCharsTill anyChar (str closingTag)
+        |>> (fun content -> new UnrecognizedGlobalSection(sectionName, content, loadSequence)
+                            :> IGlobalSection) <!> "UnrecognizedGlobalSection"
 
     let pSolutionKeyValuePair = tuple2 (ws >>. word1) (ws_ch_ws '=' >>. word1 .>> ws) <!> "KVP"
 
-    let pSolutionPropertiesGlobalSection sectionName loadSequence closingTag = manyTill (attempt pSolutionKeyValuePair) (str closingTag)
-                                                                                |>> (fun pairs -> new SolutionPropertiesGlobalSection(sectionName, loadSequence, pairs |> dict) :> IGlobalSection) <!> "SolutionPropertiesGlobalSection" 
+    let pSolutionPropertiesGlobalSection sectionName loadSequence closingTag =
+        manyTill (attempt pSolutionKeyValuePair) (str closingTag)
+        |>> (fun pairs -> new SolutionPropertiesGlobalSection(sectionName, loadSequence, pairs |> dict)
+                          :> IGlobalSection) <!> "SolutionPropertiesGlobalSection"
+
+    let globalSectionParser sectionName =
+        match sectionName with
+        | "SolutionProperties" -> pSolutionPropertiesGlobalSection sectionName
+        | _ -> pUnrecognizedGlobalSection sectionName
 
     let pGlobalSection : Parser<IGlobalSection,unit> =
         let sectionHeader = pRoundBracketedString .>> ws_ch_ws '=' .>>. pSectionLoadSequence .>> ws
@@ -48,10 +58,8 @@ module SolutionFileParser =
                 Reply(Error, msg)
             else
                 let (sectionName, (parsedLoadSequence, actualLoadSequence)) = headerReply.Result
-                let sectionParser = match sectionName with
-                                    | "SolutionProperties" -> pSolutionPropertiesGlobalSection
-                                    | _ -> pUnrecognizedGlobalSection
-                sectionParser sectionName parsedLoadSequence "EndGlobalSection" stream
+
+                globalSectionParser sectionName parsedLoadSequence "EndGlobalSection" stream
 
     let pGlobalSections = ws_str_ws "Global" >>. many (attempt pGlobalSection) .>> ws_str_ws "EndGlobal"
 
