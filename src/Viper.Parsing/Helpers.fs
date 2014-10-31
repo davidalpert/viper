@@ -23,6 +23,9 @@ let ch c = pchar c
 let ch_ws c = ch c .>> ws
 let ws_ch_ws c = ws >>. ch c .>> ws
 
+let word  : Parser<string,unit> = manySatisfy  (function ' '|'\t'|'\n' -> false | _ -> true)
+let word1 : Parser<string,unit> = many1Satisfy (function ' '|'\t'|'\n' -> false | _ -> true)
+
 let str s = pstring s
 let str_ws s = str s .>> ws
 let ws_str_ws s = ws >>. str s .>> ws

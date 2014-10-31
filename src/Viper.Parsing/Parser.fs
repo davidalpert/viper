@@ -29,12 +29,14 @@ module SolutionFileParser =
     let text_between_str openString closeString =
         ws_str_ws openString >>. manyCharsTill anyChar (ws_str_ws closeString) .>> ws_str_ws closeString
 
-    // parse START(type) = loadSequence
-    // switch on type -> parse contents
-    // parse END
-    let pUnrecognizedGlobalSection sectionType loadSequence closingTag = manyCharsTill anyChar (str closingTag) |>> (fun content -> new UnrecognizedGlobalSection(sectionType, content, loadSequence) ) <!> "UnrecognizedGlobalSection"
+    let pUnrecognizedGlobalSection sectionName loadSequence closingTag = manyCharsTill anyChar (str closingTag) |>> (fun content -> new UnrecognizedGlobalSection(sectionName, content, loadSequence) :> IGlobalSection) <!> "UnrecognizedGlobalSection"
 
-    let pGlobalSection : Parser<SolutionGlobalSection,unit> =
+    let pSolutionKeyValuePair = tuple2 (ws >>. word1) (ws_ch_ws '=' >>. word1 .>> ws) <!> "KVP"
+
+    let pSolutionPropertiesGlobalSection sectionName loadSequence closingTag = manyTill (attempt pSolutionKeyValuePair) (str closingTag)
+                                                                                |>> (fun pairs -> new SolutionPropertiesGlobalSection(sectionName, loadSequence, pairs |> dict) :> IGlobalSection) <!> "SolutionPropertiesGlobalSection" 
+
+    let pGlobalSection : Parser<IGlobalSection,unit> =
         let sectionHeader = pRoundBracketedString .>> ws_ch_ws '=' .>>. pSectionLoadSequence .>> ws
         fun stream ->
             let state = stream.State
@@ -47,13 +49,9 @@ module SolutionFileParser =
             else
                 let (sectionName, (parsedLoadSequence, actualLoadSequence)) = headerReply.Result
                 let sectionParser = match sectionName with
+                                    | "SolutionProperties" -> pSolutionPropertiesGlobalSection
                                     | _ -> pUnrecognizedGlobalSection
-                let sectionReply = sectionParser sectionName parsedLoadSequence "EndGlobalSection" stream
-                if sectionReply.Status <> Ok then
-                    Reply(Error, sectionReply.Error)
-                else
-                    let section = sectionReply.Result
-                    Reply(section :> SolutionGlobalSection)
+                sectionParser sectionName parsedLoadSequence "EndGlobalSection" stream
 
     let pGlobalSections = ws_str_ws "Global" >>. many (attempt pGlobalSection) .>> ws_str_ws "EndGlobal"
 

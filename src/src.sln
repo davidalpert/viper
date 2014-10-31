@@ -14,6 +14,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Viper.Parsing", "Viper.Pars
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viper.Model", "Viper.Model\Viper.Model.csproj", "{7CFB8F2E-D8A8-4421-A661-FE34D6FCF7D9}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Viper.Parsing.Tests", "Viper.Parsing.Tests\Viper.Parsing.Tests.fsproj", "{5A01ADBC-3A41-4236-954B-E5FB4EF6590E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{7CFB8F2E-D8A8-4421-A661-FE34D6FCF7D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CFB8F2E-D8A8-4421-A661-FE34D6FCF7D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CFB8F2E-D8A8-4421-A661-FE34D6FCF7D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A01ADBC-3A41-4236-954B-E5FB4EF6590E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A01ADBC-3A41-4236-954B-E5FB4EF6590E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A01ADBC-3A41-4236-954B-E5FB4EF6590E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A01ADBC-3A41-4236-954B-E5FB4EF6590E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

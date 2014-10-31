@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -18,21 +19,21 @@ namespace Viper.Model
     /// </example>
     public class SolutionFile
     {
-        public SolutionFile(int fileFormatMajorVersion, int fileFormatMinorVersion, VisualStudioVersion productVersion, IEnumerable<SolutionGlobalSection> globalSections = null)
+        public SolutionFile(int fileFormatMajorVersion, int fileFormatMinorVersion, VisualStudioVersion productVersion, IEnumerable<IGlobalSection> globalSections = null)
         {
             ProductVersion = productVersion;
             FormatVersion = new SolutionFileFormatVersion(fileFormatMajorVersion, fileFormatMinorVersion);
 
             var sectionsByName =
-                (globalSections ?? Enumerable.Empty<SolutionGlobalSection>())
+                (globalSections ?? Enumerable.Empty<AbstractGlobalSection>())
                     .GroupBy(s => s.Name);
 
-            GlobalSections = new MultiValueDictionary<string, SolutionGlobalSection>(sectionsByName);
+            GlobalSections = new MultiValueDictionary<string, IGlobalSection>(sectionsByName);
         }
 
         public SolutionFileFormatVersion FormatVersion { get; set; }
         public VisualStudioVersion ProductVersion { get; set; }
-        public MultiValueDictionary<string, SolutionGlobalSection> GlobalSections { get; set; }
+        public MultiValueDictionary<string, IGlobalSection> GlobalSections { get; set; }
     }
 
     public enum VisualStudioVersion
@@ -78,9 +79,15 @@ namespace Viper.Model
         PostSolution
     }
 
-    public abstract class SolutionGlobalSection
+    public interface IGlobalSection
     {
-        protected SolutionGlobalSection(string name, SectionLoadSequence loadSequence)
+        string Name { get; }
+        SectionLoadSequence LoadSequence { get; }
+    }
+
+    public abstract class AbstractGlobalSection : IGlobalSection
+    {
+        protected AbstractGlobalSection(string name, SectionLoadSequence loadSequence)
         {
             Name = name;
             LoadSequence = loadSequence;
@@ -90,13 +97,57 @@ namespace Viper.Model
         public SectionLoadSequence LoadSequence { get; private set; }
     }
 
-    public class UnrecognizedGlobalSection : SolutionGlobalSection
+    public class UnrecognizedGlobalSection : AbstractGlobalSection
     {
-        public UnrecognizedGlobalSection(string name, string content, SectionLoadSequence loadSequence) : base(name, loadSequence)
+        public UnrecognizedGlobalSection(string name, string content, SectionLoadSequence loadSequence) 
+            : base(name, loadSequence)
         {
             Content = content;
         }
 
         public string Content { get; private set; }
+    }
+
+    public class DictionaryBasedGlobalSection : Dictionary<string,string>, IGlobalSection
+    {
+        public DictionaryBasedGlobalSection(string name, SectionLoadSequence loadSequence, IDictionary<string,string> values = null)
+            : base(values ?? Enumerable.Empty<Tuple<string,string>>().ToDictionary(x => x.Item1, x => x.Item2))
+        {
+            Name = name;
+            LoadSequence = loadSequence;
+        }
+
+        public string Name { get; private set; }
+        public SectionLoadSequence LoadSequence { get; private set; }
+    }
+
+    public class SolutionPropertiesGlobalSection : DictionaryBasedGlobalSection
+    {
+        public SolutionPropertiesGlobalSection(string name, SectionLoadSequence loadSequence, IDictionary<string, string> values = null)
+            : base(name, loadSequence, values)
+        {
+        }
+
+        public bool? HideSolutionNode
+        {
+            get
+            {
+                return ContainsKey("HideSolutionNode")
+                           ? this["HideSolutionNode"] == "TRUE"
+                           : (bool?) null;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    if (ContainsKey("HideSolutionNode"))
+                        Remove("HideSolutionNode");
+                }
+                else
+                {
+                    this["HideSolutionNode"] = value.Value ? "TRUE" : "FALSE";
+                }
+            }
+        }
     }
 }

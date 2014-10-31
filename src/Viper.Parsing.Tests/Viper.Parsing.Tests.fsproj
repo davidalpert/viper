@@ -5,12 +5,12 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>e7155f6d-619e-4a72-a687-30466d60502d</ProjectGuid>
+    <ProjectGuid>5a01adbc-3a41-4236-954b-e5fb4ef6590e</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Viper.Parsing</RootNamespace>
-    <AssemblyName>Viper.Parsing</AssemblyName>
+    <RootNamespace>Viper.Parsing.Tests</RootNamespace>
+    <AssemblyName>Viper.Parsing.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>Viper.Parsing</Name>
+    <Name>Viper.Parsing.Tests</Name>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <TargetFrameworkProfile />
@@ -23,7 +23,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Viper.Parsing.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Viper.Parsing.Tests.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,7 +32,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Viper.Parsing.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Viper.Parsing.Tests.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FParsec">
@@ -43,8 +43,16 @@
       <HintPath>..\packages\FParsec.1.0.1\lib\net40-client\FParsecCS.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="FsUnit.NUnit">
+      <HintPath>..\packages\FsUnit.1.3.0.1\Lib\Net40\FsUnit.NUnit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -52,11 +60,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AST.fs" />
-    <Compile Include="Error.fs" />
-    <Compile Include="Helpers.fs" />
-    <Compile Include="Parser.fs" />
-    <None Include="Script.fsx" />
+    <Compile Include="_Extensions.fs" />
+    <Compile Include="GlobalSections.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
   </ItemGroup>
@@ -64,6 +69,11 @@
     <ProjectReference Include="..\Viper.Model\Viper.Model.csproj">
       <Name>Viper.Model</Name>
       <Project>{7cfb8f2e-d8a8-4421-a661-fe34d6fcf7d9}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Viper.Parsing\Viper.Parsing.fsproj">
+      <Name>Viper.Parsing</Name>
+      <Project>{e7155f6d-619e-4a72-a687-30466d60502d}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

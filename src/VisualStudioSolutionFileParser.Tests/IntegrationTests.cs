@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using NUnit.Framework;
-using Sprache;
 using Viper.Model;
 using Viper.Parsing;
-using VisualStudioSolutionFileParser.Tests.Helpers;
 
 namespace VisualStudioSolutionFileParser.Tests
 {
     [TestFixture]
-    public class Class1
+    public class IntegrationTests
     {
         /*
         [Test]
@@ -73,7 +68,7 @@ namespace VisualStudioSolutionFileParser.Tests
         public void EmptySolutionFile_is_Header_followed_by_GlobalSections()
         {
             var input =
-@"Microsoft Visual Studio Solution File, Format Version 12.00
+                @"Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Global
     GlobalSection(SolutionProperties) = preSolution
@@ -87,11 +82,12 @@ EndGlobal
             Assert.AreEqual(0, result.FormatVersion.Minor);
             Assert.AreEqual("Visual Studio 2012", result.ProductVersion.ToVersionString());
             Assert.AreEqual(1, result.GlobalSections.Count);
-            var section = result.GlobalSections.First().Value.OfType<UnrecognizedGlobalSection>().First();
+            var section = result.GlobalSections["SolutionProperties"]
+                                .OfType<SolutionPropertiesGlobalSection>()
+                                .First();
             Assert.AreEqual("SolutionProperties", section.Name);
             Assert.AreEqual(SectionLoadSequence.PreSolution, section.LoadSequence);
-            Assert.AreEqual(@"HideSolutionNode = FALSE
-    ", section.Content);
+            Assert.AreEqual(false, section.HideSolutionNode);
         }
 
         /*
@@ -268,7 +264,7 @@ EndProject
             let sanitizedValue = (value ?? string.Empty).Trim()
             select new SolutionProperty(sanitizedName, sanitizedValue);
 
-        public static readonly Parser<SolutionFileGlobalSection> SolutionPropertiesGlobalSection =
+        public static readonly Parser<SolutionFileGlobalSection> AbstractPropertiesGlobalSection =
             from ignore1 in Parse.Char('=').Token()
             from loadSequence in LoadSequence
             from properties in SolutionProperty.AtLeastOnce()
@@ -279,7 +275,7 @@ EndProject
             from start in Parse.String("GlobalSection").Token()
             from section in RoundBracketedString.Then(s =>
                 {
-                    return s == "SolutionProperties" ? SolutionPropertiesGlobalSection
+                    return s == "SolutionProperties" ? AbstractPropertiesGlobalSection
                          : s == "SolutionConfigurationPlatforms" ? SolutionConfigurationPlatformsGlobalSection
                          : s == "ProjectConfigurationPlatforms" ? ProjectConfigurationPlatformsGlobalSection
                                                      : UnrecognizedGlobalSection(s);
